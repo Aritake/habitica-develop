@@ -44,7 +44,7 @@ module.exports = function randomDrop (user, options, req = {}) {
     (user._tmp.crit || 1) * (1 + 0.5 * (reduce(task.checklist, (m, i) => {
       return m + (i.completed ? 1 : 0); // +50% per checklist item complete. TODO: make this into X individual drop chances instead
     }, 0) || 0));
-  chance = diminishingReturns(chance, 0.75);
+  chance = Math.pow(diminishingReturns(chance, 0.75), 0); // アイテムドロップ率を0乗(100%)
 
   if (predictableRandom() < chance) {
     user.party.quest.progress.collectedItems = user.party.quest.progress.collectedItems || 0;
@@ -62,7 +62,7 @@ module.exports = function randomDrop (user, options, req = {}) {
 
   if (daysSince(user.items.lastDrop.date, user.preferences) === 0 &&
       user.items.lastDrop.count >= dropMultiplier * (5 + Math.floor(statsComputed(user).per / 25) + (user.contributor.level || 0))) {
-    return;
+    // return;
   }
 
   if (user.flags && user.flags.dropsEnabled && predictableRandom() < chance) {
