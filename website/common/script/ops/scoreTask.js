@@ -112,7 +112,7 @@ function _addPoints (user, task, stats, direction, delta) {
   // ===== Intelligence =====
   // TODO Increases Experience gain by .2% per point.
   let intBonus = 1 + statsComputed(user).int * 0.025;
-  stats.exp += Math.round(delta * intBonus * task.priority * _crit * 20);
+  stats.exp += Math.round(delta * intBonus * task.priority * _crit * 66.5);
 
   // GP modifier
   // ===== PERCEPTION =====
