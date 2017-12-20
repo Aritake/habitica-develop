@@ -117,7 +117,7 @@ function _addPoints (user, task, stats, direction, delta) {
   // GP modifier
   // ===== PERCEPTION =====
   // TODO Increases Gold gained from tasks by .3% per point.
-  let perBonus = 1 + statsComputed(user).per * 0.02;
+  let perBonus = 1 + statsComputed(user).per * 0.2;
   let gpMod = delta * task.priority * _crit * perBonus;
 
   if (task.streak) {
