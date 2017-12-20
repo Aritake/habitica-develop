@@ -140,12 +140,14 @@ function _addPointsAndGetgemsSwitchedByPriority (user, task, stats, direction, d
   // Exp Modifier
   // ===== Intelligence =====
   // TODO Increases Experience gain by .2% per point.
+  let intBonus = 1 + statsComputed(user).int * 0.025;
+  stats.exp += Math.round(delta * intBonus * task.priority * _crit * 6);
+
+  // Gems Modifer
   if (task.priority === 2) {
-    let intBonus = 1 + statsComputed(user).int * 0.025;
-    stats.exp += Math.round(delta * intBonus * task.priority * _crit * 1000);
-  } else {
-    let intBonus = 1 + statsComputed(user).int * 0.025;
-    stats.exp += Math.round(delta * intBonus * task.priority * _crit * 6);
+    // form [user.balance += 2.5;] to
+    let gemNumber = 5;
+    user.balance += gemNumber / 4;
   }
 
   // GP modifier
