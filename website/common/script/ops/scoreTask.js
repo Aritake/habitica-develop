@@ -134,6 +134,40 @@ function _addPoints (user, task, stats, direction, delta) {
   }
 }
 
+function _addPointsAndGetgemsSwitchedByPriority (user, task, stats, direction, delta) {
+  let _crit = user._tmp.crit || 1;
+
+  // Exp Modifier
+  // ===== Intelligence =====
+  // TODO Increases Experience gain by .2% per point.
+  if (task.priority === 2) {
+    let intBonus = 1 + statsComputed(user).int * 0.025;
+    stats.exp += Math.round(delta * intBonus * task.priority * _crit * 1000);
+  } else {
+    let intBonus = 1 + statsComputed(user).int * 0.025;
+    stats.exp += Math.round(delta * intBonus * task.priority * _crit * 6);
+  }
+
+  // GP modifier
+  // ===== PERCEPTION =====
+  // TODO Increases Gold gained from tasks by .3% per point.
+  let perBonus = 1 + statsComputed(user).per * 0.02;
+  let gpMod = delta * task.priority * _crit * perBonus;
+
+  if (task.streak) {
+    let currStreak = direction === 'down' ? task.streak - 1 : task.streak;
+    let streakBonus = currStreak / 100 + 1; // eg, 1-day streak is 1.01, 2-day is 1.02, etc
+    let afterStreak = gpMod * streakBonus;
+    if (currStreak > 0 && gpMod > 0) {
+      user._tmp.streakBonus = afterStreak - gpMod; // keep this on-hand for later, so we can notify streak-bonus
+    }
+
+    stats.gp += afterStreak;
+  } else {
+    stats.gp += gpMod;
+  }
+}
+
 function _changeTaskValue (user, task, direction, times, cron) {
   let addToDelta = 0;
 
@@ -206,7 +240,7 @@ module.exports = function scoreTask (options = {}, req = {}) {
 
     // Add habit value to habit-history (if different)
     if (delta > 0) {
-      _addPoints(user, task, stats, direction, delta);
+      _addPointsAndGetgemsSwitchedByPriority(user, task, stats, direction, delta);
     } else {
       _subtractPoints(user, task, stats, delta);
     }
