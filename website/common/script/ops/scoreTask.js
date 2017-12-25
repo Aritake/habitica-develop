@@ -112,7 +112,43 @@ function _addPoints (user, task, stats, direction, delta) {
   // ===== Intelligence =====
   // TODO Increases Experience gain by .2% per point.
   let intBonus = 1 + statsComputed(user).int * 0.025;
+  stats.exp += Math.round(delta * intBonus * task.priority * _crit * 64.5);
+
+  // GP modifier
+  // ===== PERCEPTION =====
+  // TODO Increases Gold gained from tasks by .3% per point.
+  let perBonus = 1 + statsComputed(user).per * 0.19;
+  let gpMod = Math.round(delta * task.priority * _crit * perBonus);
+
+  if (task.streak) {
+    let currStreak = direction === 'down' ? task.streak - 1 : task.streak;
+    let streakBonus = currStreak / 100 + 1; // eg, 1-day streak is 1.01, 2-day is 1.02, etc
+    let afterStreak = gpMod * streakBonus;
+    if (currStreak > 0 && gpMod > 0) {
+      user._tmp.streakBonus = afterStreak - gpMod; // keep this on-hand for later, so we can notify streak-bonus
+    }
+
+    stats.gp += afterStreak;
+  } else {
+    stats.gp += gpMod;
+  }
+}
+
+function _addPointsAndGetgemsSwitchedByPriority (user, task, stats, direction, delta) {
+  let _crit = user._tmp.crit || 1;
+
+  // Exp Modifier
+  // ===== Intelligence =====
+  // TODO Increases Experience gain by .2% per point.
+  let intBonus = 1 + statsComputed(user).int * 0.025;
   stats.exp += Math.round(delta * intBonus * task.priority * _crit * 6);
+
+  // Gems Modifer
+  if (task.priority === 2) {
+    // form [user.balance += 2.5;] to
+    let gemNumber = 5;
+    user.balance += gemNumber / 4;
+  }
 
   // GP modifier
   // ===== PERCEPTION =====
@@ -206,7 +242,7 @@ module.exports = function scoreTask (options = {}, req = {}) {
 
     // Add habit value to habit-history (if different)
     if (delta > 0) {
-      _addPoints(user, task, stats, direction, delta);
+      _addPointsAndGetgemsSwitchedByPriority(user, task, stats, direction, delta);
     } else {
       _subtractPoints(user, task, stats, delta);
     }
@@ -264,7 +300,7 @@ module.exports = function scoreTask (options = {}, req = {}) {
 
       delta += _changeTaskValue(user, task, direction, times, cron);
       if (direction === 'down') delta = _calculateDelta(task, direction, cron); // recalculate delta for unchecking so the gp and exp come out correctly
-      _addPoints(user, task, stats, direction, delta);
+      _addPointsAndGetgemsSwitchedByPriority(user, task, stats, direction, delta);
 
       // MP++ per checklist item in ToDo, bonus per CLI
       let multiplier = max([reduce(task.checklist, (m, i) => m + (i.completed ? 1 : 0), 1), 1]);
