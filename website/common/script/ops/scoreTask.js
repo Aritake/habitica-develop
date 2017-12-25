@@ -141,7 +141,7 @@ function _addPointsAndGetgemsSwitchedByPriority (user, task, stats, direction, d
   // ===== Intelligence =====
   // TODO Increases Experience gain by .2% per point.
   let intBonus = 1 + statsComputed(user).int * 0.025;
-  stats.exp += Math.round(delta * intBonus * task.priority * _crit * 6);
+  stats.exp += Math.round(delta * intBonus * task.priority * _crit * 64.5);
 
   // Gems Modifer
   if (task.priority === 2) {
@@ -153,7 +153,7 @@ function _addPointsAndGetgemsSwitchedByPriority (user, task, stats, direction, d
   // GP modifier
   // ===== PERCEPTION =====
   // TODO Increases Gold gained from tasks by .3% per point.
-  let perBonus = 1 + statsComputed(user).per * 0.02;
+  let perBonus = 1 + statsComputed(user).per * 0.19;
   let gpMod = delta * task.priority * _crit * perBonus;
 
   if (task.streak) {
