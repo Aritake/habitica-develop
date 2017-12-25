@@ -112,13 +112,13 @@ function _addPoints (user, task, stats, direction, delta) {
   // ===== Intelligence =====
   // TODO Increases Experience gain by .2% per point.
   let intBonus = 1 + statsComputed(user).int * 0.025;
-  stats.exp += Math.round(delta * intBonus * task.priority * _crit * 66.5);
+  stats.exp += Math.round(delta * intBonus * task.priority * _crit * 64.5);
 
   // GP modifier
   // ===== PERCEPTION =====
   // TODO Increases Gold gained from tasks by .3% per point.
-  let perBonus = 1 + statsComputed(user).per * 0.2;
-  let gpMod = delta * task.priority * _crit * perBonus;
+  let perBonus = 1 + statsComputed(user).per * 0.19;
+  let gpMod = Math.round(delta * task.priority * _crit * perBonus);
 
   if (task.streak) {
     let currStreak = direction === 'down' ? task.streak - 1 : task.streak;
@@ -300,7 +300,7 @@ module.exports = function scoreTask (options = {}, req = {}) {
 
       delta += _changeTaskValue(user, task, direction, times, cron);
       if (direction === 'down') delta = _calculateDelta(task, direction, cron); // recalculate delta for unchecking so the gp and exp come out correctly
-      _addPoints(user, task, stats, direction, delta);
+      _addPointsAndGetgemsSwitchedByPriority(user, task, stats, direction, delta);
 
       // MP++ per checklist item in ToDo, bonus per CLI
       let multiplier = max([reduce(task.checklist, (m, i) => m + (i.completed ? 1 : 0), 1), 1]);
